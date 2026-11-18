@@ -1,25 +1,52 @@
 import { pool } from "../util/db.js"
 
 
-export async function getTimesKowalski() {
+export async function getOpenTime(datum){
     const db = await pool.getConnection()
-    try {
-        const [rows] = await db.query(`select kundendaten.name, mitarbeiter.name ,wochentag.nameTag, zeitslot.startZeit, zeitslot.endZeit, leistungen.preis, leistungen.bezeichnung
-        from wochentag
-        right join zeitslot
-        on wochentag.id = zeitslot.wochentag_id
-        right join buchung
-        on zeitslot.id = buchung.zeitSlot_id
-        right join kundendaten
-        on kundendaten.id = buchung.kundendaten_id
-        left join mitarbeiter
-        on mitarbeiter.id = buchung.mitarbeiter_id
-        left join leistungen_buchung
-        on buchung.id = leistungen_buchung.buchung_id
-        left join leistungen
-        on leistungen.id = leistungen_buchung.leistungen_id; `)
-        return rows
-    } catch (error) {
+    try{
+        const [oeffnungszeiten] = await db.execute (`
+            select von, bis
+            from oeffnungszeiten
+            where wochentag = weekday(?) + 1
+            `, [datum])
+        return oeffnungszeiten
+    }catch (error) {
+        throw error
+    } finally {
+        db.release()
+    }
+}
+export async function getBookedTimes(mitarbeiter_id, datum) {
+    const db = await pool.getConnection()
+    try{
+        const [termine] = await db.execute(`
+            Select beginn, ende 
+            from termine
+            where mitarbeiter_id = ?
+            and DATE(beginn) = ?
+            and status in ('gebucht', 'bestaetigt')
+            `, [mitarbeiter_id, datum])
+
+        return termine
+    }catch (error) {
+        throw error
+    } finally {
+        db.release()
+    }
+}
+export async function getDauerLeistungen(mitarbeiter_id, leistungs_id) {
+    const db = await pool.getConnection()
+    try{
+        const [leistungen] = await db.execute(`
+            select l.dauer_minuten
+            from leistungen l 
+            join mitarbeiter_leistungen ml
+            on l.leistungs_id = ml.leistungs_id
+            where ml.mitarbeiter_id = ?
+            and l.leistungs_id = ?`,
+        [mitarbeiter_id, leistungs_id])
+        return leistungen
+    }catch (error) {
         throw error
     } finally {
         db.release()
