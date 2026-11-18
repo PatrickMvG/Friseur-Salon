@@ -1,9 +1,9 @@
-import { getBookedTimes, getDauerLeistungen, getOpenTime} from "../repository/mitarbeiter.repository.js";
+import { getAllPricesRepo, getBookedTimes, getDauerLeistungen, getNameByLeistungRepo, getOpenTime } from "../repository/mitarbeiter.repository.js";
 
 export async function freieTermine(datum, mitarbeider_id, leistungs_id) {
 
     const oeffnungszeiten = await getOpenTime(datum)
-    if(oeffnungszeiten.length === 0)
+    if (oeffnungszeiten.length === 0)
         return []
     const leistungen = await getDauerLeistungen(mitarbeider_id, leistungs_id)
     if (leistungen.length === 0)
@@ -13,7 +13,7 @@ export async function freieTermine(datum, mitarbeider_id, leistungs_id) {
         const [h, m] = zeit.split(":").map(Number);
         return h * 60 + m;
     };
-    
+
     const start = minuten(oeffnungszeiten[0].von);
     const ende = minuten(oeffnungszeiten[0].bis);
     const dauer = leistungen[0].dauer_minuten;
@@ -51,4 +51,17 @@ export async function freieTermine(datum, mitarbeider_id, leistungs_id) {
         }
     }
     return freieZeiten;
+}
+
+
+export async function getAllPricesService() {
+    const price = await getAllPricesRepo()
+    return price
+}
+
+
+export async function getNameByLeistungService(leistung) {
+    const leistungById = await getNameByLeistungRepo(leistung)
+    return leistungById
+    
 }
