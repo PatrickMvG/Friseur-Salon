@@ -56,7 +56,7 @@ export async function getDauerLeistungen(mitarbeiter_id, leistungs_id) {
 export async function getAllPricesRepo() {
     const db = await pool.getConnection()
     try{
-        const [preise] = await db.execute(`SELECT bezeichnung, dauer_minuten, preis FROM leistungen;`)
+        const [preise] = await db.execute(`SELECT bezeichnung, dauer_minuten, preis, leistungs_id FROM leistungen;`)
         return preise
     }catch (error) {
         throw error
@@ -69,14 +69,14 @@ export async function getAllPricesRepo() {
 export async function getNameByLeistungRepo(leistung) {
     const db = await pool.getConnection()
     try{
-        const [leistung] = await db.execute(`select mitarbeiter.name, leistungen.bezeichnung
+        const [leistung1] = await db.execute(`select mitarbeiter.mitarbeiter_id ,mitarbeiter.name, leistungen.bezeichnung, leistungen.leistungs_id
                                             from mitarbeiter
                                             left join mitarbeiter_leistungen
                                             on mitarbeiter.mitarbeiter_id = mitarbeiter_leistungen.mitarbeiter_id
                                             left join leistungen
                                             on leistungen.leistungs_id = mitarbeiter_leistungen.leistungs_id
-                                            where leistungen.bezeichnung = ?;`, [leistung])
-        return leistung
+                                            where leistungen.leistungs_id = ?;`, [leistung])
+        return leistung1
     }catch (error) {
         throw error
     } finally {

@@ -1,4 +1,4 @@
-import { freieTermine, getAllPricesService, getNameByLeistungService } from "../service/mitarbeiter.service.js";
+import { freieTermine, getAllPricesService, getFreieTermineService, getNameByLeistungService } from "../service/mitarbeiter.service.js";
 
 
 export async function getAll(req, res) {
@@ -7,7 +7,7 @@ export async function getAll(req, res) {
         const mid = req.query.mid
         const lid = req.query.lid
 
-        const termine = await freieTermine(datum, mid, lid)
+        const termine = await getFreieTermineService(datum, mid, lid)
         res.json(termine)
     } catch (error) {
         console.log(error)
@@ -24,7 +24,7 @@ export async function getNameByLeistungController(req, res) {
     try {
         const lid = req.query.lid
 
-        const leistungen = await freieTermine(lid)
+        const leistungen = await getNameByLeistungService(lid)
         res.json(leistungen)
     } catch (error) {
         console.log(error)

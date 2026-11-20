@@ -63,5 +63,34 @@ export async function getAllPricesService() {
 export async function getNameByLeistungService(leistung) {
     const leistungById = await getNameByLeistungRepo(leistung)
     return leistungById
-    
+}
+
+export async function getFreieTermineService(datum, mid, lid) {
+    if (Number(mid) !== 0) {
+        return await freieTermine(datum, mid, lid)
+    }
+    const mitarbeiterListe = await getNameByLeistungRepo(lid)
+
+    mitarbeiterListe.sort((a, b) => {
+        if (a.mitarbeiter_id === 1) return 1
+        if (b.mitarbeiter_id === 1) return -1
+        return a.mitarbeiter_id - b.mitarbeiter_id
+    })
+    const zeitZuMitarbeiter = new Map()
+
+    for (const ma of mitarbeiterListe) {
+        const slots = await freieTermine(datum, ma.mitarbeiter_id, lid)
+        for (const uhrzeit of slots) {
+            if (!zeitZuMitarbeiter.has(uhrzeit)) {
+                zeitZuMitarbeiter.set(uhrzeit, {
+                    uhrzeit: uhrzeit,
+                    mitarbeiter_id: ma.mitarbeiter_id,
+                    name: ma.name
+                })
+            }
+        }
+    }
+    return Array.from(zeitZuMitarbeiter.values()).sort((a, b) =>
+        a.uhrzeit.localeCompare(b.uhrzeit)
+    )
 }

@@ -1,0 +1,28 @@
+info:
+  name: terminAnlegen
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: http://localhost:8080/api/v1/termin
+  body:
+    type: json
+    data: |-
+      {
+        "kunden_id": 2,
+        "mitarbeiter_id": 1,
+        "leistungs_id": 1,
+        "beginn": "2026-11-26 12:00:00",
+        "ende": "2026-11-26 12:30:00",
+        "preis_bei_buchung": 28.00,
+        "dauer_bei_buchung": 30,
+        "status": "gebucht"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
